@@ -1,7 +1,6 @@
 # HR Feedback Agent
 
 AI-powered internal HR feedback agent built with the Claude API and Streamlit.
-Built as a 3-day proof of concept for an AI Fellowship interview.
 
 ## What it does
 - Answers employee questions about the feedback process
