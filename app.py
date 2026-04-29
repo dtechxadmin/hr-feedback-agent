@@ -1,6 +1,6 @@
 """
 app.py — Streamlit UI for the HR feedback agent.
-Two tabs: Employee (submit feedback) and CPO View (summary dashboard).
+Two tabs: Employee (submit feedback) and HR Manager View (summary dashboard).
 
 Run with:
     streamlit run app.py
@@ -40,7 +40,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-employee_tab, cpo_tab = st.tabs(["Employee", "CPO View"])
+employee_tab, hrm_tab = st.tabs(["Employee", "HR Manager View"])
 
 # ── Employee tab ──────────────────────────────────────────────────────────────
 
@@ -112,10 +112,10 @@ with employee_tab:
         )
         st.rerun()
 
-# ── CPO View tab ──────────────────────────────────────────────────────────────
+# ── HR Manager View tab ──────────────────────────────────────────────────────────────
 
-with cpo_tab:
-    st.header("Feedback Dashboard")
+with hrm_tab:
+    st.header("HR Manager Dashboard")
     st.caption("Real-time view of all submissions — refreshes on each interaction.")
 
     if st.button("Refresh data"):

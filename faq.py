@@ -48,8 +48,8 @@ FAQ_ENTRIES = [
             "Retaliation for submitting feedback — positive or negative — is a policy violation "
             "and grounds for disciplinary action. Anonymous submissions are designed specifically "
             "to make this a non-issue. If you ever feel you've experienced retaliation after "
-            "submitting feedback, report it directly to the Chief People Officer or through "
-            "the ethics hotline at ethics@company.com."
+            "submitting feedback, report it directly to the HR Manager or through "
+            "your organization's ethics reporting channel."
         ),
     },
     {
