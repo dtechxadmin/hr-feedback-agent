@@ -36,10 +36,6 @@ rather than a form.
 
 ## Architecture
 
-## Architecture
-
-## Architecture
-
 ```
 Streamlit
 ├── Employee tab        (chat interface)
