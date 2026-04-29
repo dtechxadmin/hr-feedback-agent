@@ -36,24 +36,30 @@ rather than a form.
 
 ## Architecture
 
+## Architecture
+
+## Architecture
+
+```
 Streamlit
 ├── Employee tab        (chat interface)
 └── HR Manager View tab (feedback dashboard)
-│
-▼
+         │
+         ▼
 Claude API — 4 tools
-│
-├── lookup_faq
-│     └── faq.py (keyword search · 6 trust-focused entries)
-│
-├── submit_feedback
-│     └── records.py (JSON store · category · sentiment · visibility)
-│
-├── get_feedback_summary
-│     └── records.py (totals · by category · by sentiment)
-│
-└── get_feedback_by_category
-└── records.py (drill into a specific theme)
+         │
+         ├── lookup_faq
+         │     └── faq.py (keyword search · 6 trust-focused entries)
+         │
+         ├── submit_feedback
+         │     └── records.py (JSON store · category · sentiment · visibility)
+         │
+         ├── get_feedback_summary
+         │     └── records.py (totals · by category · by sentiment)
+         │
+         └── get_feedback_by_category
+               └── records.py (drill into a specific theme)
+```
 
 ## Simulated SSO users
 
