@@ -306,7 +306,7 @@ if is_hr_manager:
         df = pd.DataFrame(table_data)
 
         st.markdown("#### Feedback Records")
-        st.caption("Click a row to view the full feedback record on the right.")
+        st.caption("Click a row to view the full record on the right.")
 
         table_col, card_col = st.columns([3, 2])
 
@@ -324,11 +324,10 @@ if is_hr_manager:
                 st.session_state.selected_record = filtered[selected_index]
 
         with card_col:
+            st.markdown("#### Selected Feedback")
             if st.session_state.selected_record:
-                st.markdown("#### Selected Feedback")
                 render_feedback_card(st.session_state.selected_record)
             else:
-                st.markdown("#### Selected Feedback")
                 st.caption("Click a row in the table to view the full record here.")
 
     st.stop()
