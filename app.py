@@ -52,12 +52,47 @@ st.markdown("""
         font-weight: 600;
         margin-right: 6px;
     }
-    .badge-concern    { background-color: #FDECEA; color: #C0392B; }
-    .badge-positive   { background-color: #E8F8F0; color: #1E8449; }
+    .badge-concern      { background-color: #FDECEA; color: #C0392B; }
+    .badge-positive     { background-color: #E8F8F0; color: #1E8449; }
     .badge-constructive { background-color: #EBF5FB; color: #1A5276; }
-    .badge-urgent     { background-color: #FDF2E9; color: #BA4A00; }
-    .badge-anon       { background-color: #F4ECF7; color: #6C3483; }
-    .badge-named      { background-color: #EBF5FB; color: #1A5276; }
+    .badge-urgent       { background-color: #FDF2E9; color: #BA4A00; }
+    .badge-anon         { background-color: #F4ECF7; color: #6C3483; }
+    .badge-named        { background-color: #EBF5FB; color: #1A5276; }
+    .record-table-header {
+        display: grid;
+        grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr 1.5fr;
+        padding: 6px 12px;
+        background-color: #f0f2f6;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 4px;
+    }
+    .record-table-row {
+        display: grid;
+        grid-template-columns: 1.5fr 1.2fr 1.2fr 1fr 1.5fr;
+        padding: 8px 12px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+        align-items: center;
+    }
+    .record-table-row:hover {
+        background-color: #f8f9fb;
+    }
+    div[data-testid="stButton"] button[kind="tertiary"] {
+        background: none !important;
+        border: none !important;
+        color: #1A73E8 !important;
+        padding: 0 !important;
+        font-size: 14px !important;
+        text-decoration: underline !important;
+        cursor: pointer !important;
+        box-shadow: none !important;
+    }
+    div[data-testid="stButton"] button[kind="tertiary"]:hover {
+        color: #0d47a1 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -76,13 +111,9 @@ if "show_suggestions" not in st.session_state:
 if "selected_record" not in st.session_state:
     st.session_state.selected_record = None
 
-# ── Helper: render feedback card ──────────────────────────────────────────────
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
 def _get_real_name(rec: dict) -> str:
-    """
-    Always returns the real employee name for HR visibility.
-    Looks up the employee_id against MOCK_SSO_USERS.
-    In production this would query the HRIS by employee_id.
-    """
     employee_id = rec.get("employee_id")
     if employee_id and employee_id in MOCK_SSO_USERS:
         return MOCK_SSO_USERS[employee_id]["full_name"]
@@ -110,9 +141,6 @@ def render_feedback_card(rec: dict):
 
     st.markdown(f"""
         <div class="feedback-card">
-            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:8px;">
-                Selected Feedback
-            </div>
             <div style="margin-bottom:10px;">
                 <strong>{rec.get('id', '')}</strong>
                 &nbsp;{sentiment_badge}{anon_badge}
@@ -132,6 +160,47 @@ def render_feedback_card(rec: dict):
             </div>
         </div>
     """, unsafe_allow_html=True)
+
+
+def render_record_table(filtered: list):
+    """Render a custom table with clickable Record ID links."""
+    # Header row
+    h1, h2, h3, h4, h5 = st.columns([1.5, 1.2, 1.2, 1, 1.5])
+    h1.markdown("**Record ID**")
+    h2.markdown("**Category**")
+    h3.markdown("**Sentiment**")
+    h4.markdown("**Date**")
+    h5.markdown("**Visibility**")
+    st.divider()
+
+    for i, r in enumerate(filtered):
+        submitted = r.get("submitted_at", "")
+        try:
+            dt = datetime.strptime(submitted, "%Y-%m-%d %H:%M")
+            display_date = dt.strftime("%m/%d/%Y")
+        except Exception:
+            display_date = submitted
+
+        visibility_label = (
+            "Anonymous to Manager"
+            if r.get("visibility") == "anonymous_to_manager"
+            else "Named"
+        )
+
+        c1, c2, c3, c4, c5 = st.columns([1.5, 1.2, 1.2, 1, 1.5])
+        with c1:
+            if st.button(
+                r.get("id", ""),
+                key=f"rec_{i}_{r.get('id')}",
+                type="tertiary",
+            ):
+                st.session_state.selected_record = r
+                st.rerun()
+        c2.write(r.get("category", "").capitalize())
+        c3.write(r.get("sentiment", "").capitalize())
+        c4.write(display_date)
+        c5.write(visibility_label)
+
 
 # ── Login screen ──────────────────────────────────────────────────────────────
 
@@ -196,7 +265,6 @@ def logout():
 # ══════════════════════════════════════════════════════════════════════════════
 
 if is_hr_manager:
-    # Header
     header_col, logout_col = st.columns([5, 1])
     with header_col:
         st.header("HR Manager Dashboard")
@@ -213,7 +281,6 @@ if is_hr_manager:
 
     st.divider()
 
-    # Load all records
     data = _load()
     all_records = data.get("feedback", [])
 
@@ -238,10 +305,8 @@ if is_hr_manager:
 
     # ── Filters ───────────────────────────────────────────────────────────────
     all_categories = sorted(set(r.get("category", "general") for r in all_records))
-    all_sentiments = ["positive", "constructive", "concern", "urgent"]
 
     f1, f2, f3, f4 = st.columns([2, 2, 2, 2])
-
     with f1:
         cat_filter = st.selectbox(
             "Category",
@@ -268,70 +333,35 @@ if is_hr_manager:
 
     if cat_filter != "All":
         filtered = [r for r in filtered if r.get("category") == cat_filter.lower()]
-
     if sent_filter != "All":
         filtered = [r for r in filtered if r.get("sentiment") == sent_filter.lower()]
-
     if date_filter:
         filtered = [
             r for r in filtered
-            if datetime.strptime(r.get("submitted_at", "2000-01-01 00:00"), "%Y-%m-%d %H:%M").date() >= date_filter
+            if datetime.strptime(
+                r.get("submitted_at", "2000-01-01 00:00"), "%Y-%m-%d %H:%M"
+            ).date() >= date_filter
         ]
-
     if anon_only:
         filtered = [r for r in filtered if r.get("visibility") == "anonymous_to_manager"]
 
-    # ── Build dataframe for table ─────────────────────────────────────────────
+    # ── Table + card layout ───────────────────────────────────────────────────
     if not filtered:
         st.warning("No records match the selected filters.")
     else:
-        table_data = []
-        for r in filtered:
-            submitted = r.get("submitted_at", "")
-            try:
-                dt = datetime.strptime(submitted, "%Y-%m-%d %H:%M")
-                display_date = dt.strftime("%m/%d/%Y")
-            except Exception:
-                display_date = submitted
-
-            table_data.append({
-                "Record ID": r.get("id", ""),
-                "Category": r.get("category", "").capitalize(),
-                "Sentiment": r.get("sentiment", "").capitalize(),
-                "Date": display_date,
-                "Visibility": (
-                    "Anonymous to Manager"
-                    if r.get("visibility") == "anonymous_to_manager"
-                    else "Named"
-                ),
-            })
-
-        df = pd.DataFrame(table_data)
-
-        st.markdown("#### Feedback Records")
-        st.caption("Click a row to view the full record on the right.")
-
         table_col, card_col = st.columns([3, 2])
 
         with table_col:
-            selected_rows = st.dataframe(
-                df,
-                use_container_width=True,
-                hide_index=True,
-                on_select="rerun",
-                selection_mode="single-row",
-            )
-
-            if selected_rows and selected_rows.selection.rows:
-                selected_index = selected_rows.selection.rows[0]
-                st.session_state.selected_record = filtered[selected_index]
+            st.markdown("#### Feedback Records")
+            st.caption("Click a Record ID to view the full feedback on the right.")
+            render_record_table(filtered)
 
         with card_col:
             if st.session_state.selected_record:
                 render_feedback_card(st.session_state.selected_record)
             else:
                 st.markdown("&nbsp;", unsafe_allow_html=True)
-                st.caption("← Click a row to view the full record here.")
+                st.caption("← Click a Record ID to view the full feedback here.")
 
     st.stop()
 
