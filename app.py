@@ -241,7 +241,7 @@ if not st.session_state.logged_in:
                 "Please check your ID and try again."
             )
 
-    _, demo_col, _ = st.columns([1, 2, 1])
+    demo_col, _ = st.columns([2, 1])
     with demo_col:
         with st.expander("Available demo accounts"):
             st.markdown("""
