@@ -241,15 +241,17 @@ if not st.session_state.logged_in:
                 "Please check your ID and try again."
             )
 
-    with st.expander("Available demo accounts"):
-        st.markdown("""
-        | Employee ID | Name | Department |
-        |-------------|------|------------|
-        | E100001 | Alex Rivera | Engineering |
-        | E100002 | Jordan Lee | Marketing |
-        | E100003 | Morgan Chen | Operations |
-        | E100004 | Elena Vasquez | Human Resources |
-        """)
+    _, demo_col, _ = st.columns([1, 2, 1])
+    with demo_col:
+        with st.expander("Available demo accounts"):
+            st.markdown("""
+            | Employee ID | Name | Role | Department |
+            |-------------|------|------|------------|
+            | E100001 | Alex Rivera | Software Engineer | Engineering |
+            | E100002 | Jordan Lee | Marketing Manager | Marketing |
+            | E100003 | Morgan Chen | Operations Analyst | Operations |
+            | E100004 | Elena Vasquez | HR Manager | Human Resources |
+            """)
 
     st.stop()
 
@@ -379,8 +381,6 @@ if is_hr_manager:
             )
             if st.session_state.selected_record:
                 render_feedback_card(st.session_state.selected_record)
-            else:
-                st.caption("← Click a Record ID to view the full feedback here.")
 
     st.stop()
 
@@ -432,10 +432,13 @@ for msg in st.session_state.display_messages:
 
 default_input = st.session_state.pop("prefill", None)
 
+_, chat_col, _ = st.columns([1, 2, 1])
+
 if default_input:
     prompt = default_input
 else:
-    prompt = st.chat_input("Ask a question or share feedback...")
+    with chat_col:
+        prompt = st.chat_input("Ask a question or share feedback...")
 
 if prompt:
     st.session_state.show_suggestions = False
