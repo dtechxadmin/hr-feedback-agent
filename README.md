@@ -6,7 +6,7 @@ with HR — removing friction, building trust, and closing the feedback loop.
 
 ## Live Demo
 
-[Insert your Streamlit URL here once deployed]
+[Launch HR Feedback Agent](https://hr-feedback-agent.streamlit.app/)
 
 Log in as any of the simulated SSO users to explore the employee experience,
 then switch to the HR Manager View tab to see the feedback dashboard.
