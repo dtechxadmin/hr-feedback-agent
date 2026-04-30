@@ -41,7 +41,7 @@ st.markdown("""
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         padding: 16px 20px;
-        margin-top: 12px;
+        margin-top: 0px;
         background-color: #fafafa;
     }
     .badge {
@@ -324,7 +324,12 @@ if is_hr_manager:
                 st.session_state.selected_record = filtered[selected_index]
 
         with card_col:
-            st.markdown("#### Selected Feedback")
+            st.markdown(
+                "<div style='margin-top: 0px; padding-top: 0px;'>"
+                "<h4 style='margin-bottom: 8px;'>Selected Feedback</h4>"
+                "</div>",
+                unsafe_allow_html=True
+            )
             if st.session_state.selected_record:
                 render_feedback_card(st.session_state.selected_record)
             else:
