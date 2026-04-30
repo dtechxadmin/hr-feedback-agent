@@ -161,7 +161,6 @@ def render_feedback_card(rec: dict):
         </div>
     """, unsafe_allow_html=True)
 
-
 def render_record_table(filtered: list):
     """Render a custom table with clickable Record ID links."""
     # Header row
@@ -171,7 +170,12 @@ def render_record_table(filtered: list):
     h3.markdown("**Sentiment**")
     h4.markdown("**Date**")
     h5.markdown("**Visibility**")
-    st.divider()
+
+    # Thin divider with no extra spacing
+    st.markdown(
+        "<hr style='margin: 4px 0 4px 0; border: none; border-top: 1px solid #e0e0e0;'>",
+        unsafe_allow_html=True
+    )
 
     for i, r in enumerate(filtered):
         submitted = r.get("submitted_at", "")
@@ -200,6 +204,12 @@ def render_record_table(filtered: list):
         c3.write(r.get("sentiment", "").capitalize())
         c4.write(display_date)
         c5.write(visibility_label)
+
+        # Row separator
+        st.markdown(
+            "<hr style='margin: 0; border: none; border-top: 1px solid #f0f0f0;'>",
+            unsafe_allow_html=True
+        )
 
 
 # ── Login screen ──────────────────────────────────────────────────────────────
@@ -357,10 +367,13 @@ if is_hr_manager:
             render_record_table(filtered)
 
         with card_col:
+            st.markdown(
+                "<div style='height: 72px;'></div>",
+                unsafe_allow_html=True
+            )
             if st.session_state.selected_record:
                 render_feedback_card(st.session_state.selected_record)
             else:
-                st.markdown("&nbsp;", unsafe_allow_html=True)
                 st.caption("← Click a Record ID to view the full feedback here.")
 
     st.stop()
