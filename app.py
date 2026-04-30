@@ -85,7 +85,7 @@ if not st.session_state.logged_in:
         | E100001 | Alex Rivera | Engineering |
         | E100002 | Jordan Lee | Marketing |
         | E100003 | Morgan Chen | Operations |
-        | E100004 | Sam Torres | Human Resources |
+        | E100004 | Elena Vasquez | Human Resources |
         """)
 
     st.stop()
