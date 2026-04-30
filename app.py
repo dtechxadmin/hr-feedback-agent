@@ -10,11 +10,32 @@ import streamlit as st
 from auth import MOCK_SSO_USERS
 from records import get_feedback_summary, get_feedback_by_category
 
+# ── Page config ───────────────────────────────────────────────────────────────
+
 st.set_page_config(
     page_title="HR Feedback Agent",
     page_icon="💬",
     layout="centered"
 )
+
+# ── CSS ───────────────────────────────────────────────────────────────────────
+
+st.markdown("""
+    <style>
+    [data-testid="stChatInputContainer"] {
+        border-color: #4A90D9 !important;
+        box-shadow: 0 0 0 1px #4A90D9 !important;
+    }
+    [data-testid="stChatInputContainer"]:focus-within {
+        border-color: #4A90D9 !important;
+        box-shadow: 0 0 0 2px #4A90D9 !important;
+    }
+    [data-testid="stChatInput"] textarea:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # ── Session state defaults ────────────────────────────────────────────────────
 
@@ -64,32 +85,29 @@ if not st.session_state.logged_in:
         | E100001 | Alex Rivera | Engineering |
         | E100002 | Jordan Lee | Marketing |
         | E100003 | Morgan Chen | Operations |
+        | E100004 | Sam Torres | Human Resources |
         """)
 
     st.stop()
 
 # ── Main app (logged in) ──────────────────────────────────────────────────────
 
-# Import run_agent here so it only loads after login
 from agent import run_agent
 
 SSO_USER = st.session_state.current_user
+is_hr_manager = SSO_USER["department"] == "Human Resources"
 
-employee_tab, hrm_tab = st.tabs(["Employee", "HR Manager View"])
+# ── HR Manager only view ──────────────────────────────────────────────────────
 
-# ── Employee tab ──────────────────────────────────────────────────────────────
+if is_hr_manager:
+    st.header("HR Manager Dashboard")
+    st.caption(
+        f"Logged in as **{SSO_USER['full_name']}** · "
+        f"{SSO_USER['title']} · {SSO_USER['department']}"
+    )
 
-with employee_tab:
-    # Header row with logout button
-    header_col, logout_col = st.columns([5, 1])
-    with header_col:
-        st.header("HR Feedback Agent")
-        st.caption(
-            f"Logged in as **{SSO_USER['full_name']}** · "
-            f"{SSO_USER['title']} · {SSO_USER['department']}"
-        )
-    with logout_col:
-        st.write("")
+    col1, col2 = st.columns([5, 1])
+    with col2:
         st.write("")
         if st.button("Log Out", type="secondary"):
             st.session_state.logged_in = False
@@ -99,70 +117,7 @@ with employee_tab:
             st.session_state.show_suggestions = True
             st.rerun()
 
-    st.info(
-        "🔍 **Demo:** This is a proof-of-concept HR feedback agent built with "
-        "the Claude API. You are logged in as a simulated employee via mock SSO. "
-        "Try submitting feedback or asking a question, then switch to the "
-        "HR Manager View tab to see the dashboard."
-    )
-
-    # Suggestion buttons
-    if st.session_state.show_suggestions:
-        with st.expander("Not sure where to start? Try one of these", expanded=True):
-            cols = st.columns(2)
-            suggestions = [
-                "Is my feedback really anonymous?",
-                "What happens after I submit?",
-                "I want to share feedback about my manager",
-                "I have a concern about team culture",
-                "Something happened that felt unfair",
-                "I want to give positive feedback about onboarding",
-            ]
-            for i, s in enumerate(suggestions):
-                if cols[i % 2].button(s, key=f"sug_{i}"):
-                    st.session_state["prefill"] = s
-                    st.session_state.show_suggestions = False
-                    st.rerun()
-
-    # Render conversation history
-    for msg in st.session_state.display_messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-
-    # Handle prefill from suggestion buttons
-    default_input = st.session_state.pop("prefill", None)
-
-    if default_input:
-        prompt = default_input
-    else:
-        prompt = st.chat_input("Ask a question or share feedback...")
-
-    if prompt:
-        st.session_state.show_suggestions = False
-
-        st.session_state.display_messages.append(
-            {"role": "user", "content": prompt}
-        )
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        with st.chat_message("assistant"):
-            with st.spinner(""):
-                reply, st.session_state.history = run_agent(
-                    prompt, st.session_state.history
-                )
-            st.markdown(reply)
-
-        st.session_state.display_messages.append(
-            {"role": "assistant", "content": reply}
-        )
-        st.rerun()
-
-# ── HR Manager View tab ───────────────────────────────────────────────────────
-
-with hrm_tab:
-    st.header("HR Manager Dashboard")
-    st.caption("Real-time view of employee feedback — refreshes on each interaction.")
+    st.divider()
 
     if st.button("Refresh data"):
         st.rerun()
@@ -170,7 +125,7 @@ with hrm_tab:
     summary = get_feedback_summary()
 
     if not summary.get("total"):
-        st.info("No feedback submitted yet. Use the Employee tab to submit some.")
+        st.info("No feedback submitted yet.")
     else:
         total = summary["total"]
         by_cat = summary.get("by_category", {})
@@ -233,3 +188,81 @@ with hrm_tab:
                 ):
                     st.markdown(rec["feedback"])
                     st.caption(f"Status: {rec['status']}")
+
+    st.stop()
+
+# ── Employee view ─────────────────────────────────────────────────────────────
+
+header_col, logout_col = st.columns([5, 1])
+with header_col:
+    st.header("HR Feedback Agent")
+    st.caption(
+        f"Logged in as **{SSO_USER['full_name']}** · "
+        f"{SSO_USER['title']} · {SSO_USER['department']}"
+    )
+with logout_col:
+    st.write("")
+    st.write("")
+    if st.button("Log Out", type="secondary"):
+        st.session_state.logged_in = False
+        st.session_state.current_user = None
+        st.session_state.history = []
+        st.session_state.display_messages = []
+        st.session_state.show_suggestions = True
+        st.rerun()
+
+st.info(
+    "🔍 **Demo:** This is a proof-of-concept HR feedback agent built with "
+    "the Claude API. You are logged in as a simulated employee via mock SSO. "
+    "Try submitting feedback or asking a question, then switch to the "
+    "HR Manager View tab to see the dashboard."
+)
+
+if st.session_state.show_suggestions:
+    with st.expander("Not sure where to start? Try one of these", expanded=True):
+        cols = st.columns(2)
+        suggestions = [
+            "Is my feedback really anonymous?",
+            "What happens after I submit?",
+            "I want to share feedback about my manager",
+            "I have a concern about team culture",
+            "Something happened that felt unfair",
+            "I want to give positive feedback about onboarding",
+        ]
+        for i, s in enumerate(suggestions):
+            if cols[i % 2].button(s, key=f"sug_{i}"):
+                st.session_state["prefill"] = s
+                st.session_state.show_suggestions = False
+                st.rerun()
+
+for msg in st.session_state.display_messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
+
+default_input = st.session_state.pop("prefill", None)
+
+if default_input:
+    prompt = default_input
+else:
+    prompt = st.chat_input("Ask a question or share feedback...")
+
+if prompt:
+    st.session_state.show_suggestions = False
+
+    st.session_state.display_messages.append(
+        {"role": "user", "content": prompt}
+    )
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        with st.spinner(""):
+            reply, st.session_state.history = run_agent(
+                prompt, st.session_state.history
+            )
+        st.markdown(reply)
+
+    st.session_state.display_messages.append(
+        {"role": "assistant", "content": reply}
+    )
+    st.rerun()

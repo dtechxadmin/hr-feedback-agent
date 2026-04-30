@@ -30,6 +30,13 @@ MOCK_SSO_USERS = {
         "department": "Operations",
         "title": "Operations Analyst",
     },
+    "E100004": {
+        "employee_id": "E100004",
+        "full_name": "Elena Vasquez",
+        "email": "e.vasquez@company.com",
+        "department": "Human Resources",
+        "title": "HR Manager",
+    }
 }
 
 # Swap this ID to simulate a different logged-in employee
