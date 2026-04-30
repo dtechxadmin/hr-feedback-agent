@@ -18,7 +18,7 @@ from records import get_feedback_summary, get_feedback_by_category, _load
 st.set_page_config(
     page_title="HR Feedback Agent",
     page_icon="💬",
-    layout="centered"
+    layout="wide"
 )
 
 # ── CSS ───────────────────────────────────────────────────────────────────────
