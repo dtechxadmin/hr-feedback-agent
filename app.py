@@ -77,6 +77,17 @@ if "selected_record" not in st.session_state:
     st.session_state.selected_record = None
 
 # ── Helper: render feedback card ──────────────────────────────────────────────
+def _get_real_name(rec: dict) -> str:
+    """
+    Always returns the real employee name for HR visibility.
+    Looks up the employee_id against MOCK_SSO_USERS.
+    In production this would query the HRIS by employee_id.
+    """
+    employee_id = rec.get("employee_id")
+    if employee_id and employee_id in MOCK_SSO_USERS:
+        return MOCK_SSO_USERS[employee_id]["full_name"]
+    return rec.get("employee_name", "Unknown")
+
 
 def render_feedback_card(rec: dict):
     sentiment = rec.get("sentiment", "general")
@@ -104,7 +115,7 @@ def render_feedback_card(rec: dict):
                 &nbsp;{sentiment_badge}{anon_badge}
             </div>
             <div style="font-size:14px; color:#444; margin-bottom:4px;">
-                <strong>Name:</strong> {rec.get('employee_name', 'Anonymous')}
+                <strong>Name:</strong> {_get_real_name(rec)}
             </div>
             <div style="font-size:14px; color:#444; margin-bottom:4px;">
                 <strong>Category:</strong> {rec.get('category', '').capitalize()}
@@ -306,15 +317,26 @@ if is_hr_manager:
         )
 
         # ── Selected record card ──────────────────────────────────────────────
-        if selected_rows and selected_rows.selection.rows:
-            selected_index = selected_rows.selection.rows[0]
-            selected_rec = filtered[selected_index]
-            st.session_state.selected_record = selected_rec
+        with table_col:
+            selected_rows = st.dataframe(
+                df,
+                use_container_width=True,
+                hide_index=True,
+                on_select="rerun",
+                selection_mode="single-row",
+            )
 
-        if st.session_state.selected_record:
-            st.markdown("---")
-            st.markdown("#### Selected Feedback")
-            render_feedback_card(st.session_state.selected_record)
+            if selected_rows and selected_rows.selection.rows:
+                selected_index = selected_rows.selection.rows[0]
+                st.session_state.selected_record = filtered[selected_index]
+
+        with card_col:
+            if st.session_state.selected_record:
+                st.markdown("#### Selected Feedback")
+                render_feedback_card(st.session_state.selected_record)
+            else:
+                st.markdown("#### Selected Feedback")
+                st.caption("Click a row in the table to view the full record here.")
 
     st.stop()
 
