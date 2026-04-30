@@ -20,19 +20,17 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-    [data-testid="stChatInput"] textarea:focus,
-    [data-testid="stChatInput"] textarea:active,
-    [data-testid="stChatInput"] textarea {
-        outline: none !important;
-        box-shadow: none !important;
+    [data-testid="stChatInputContainer"] {
+        border-color: #4A90D9 !important;
+        box-shadow: 0 0 0 1px #4A90D9 !important;
     }
     [data-testid="stChatInputContainer"]:focus-within {
         border-color: #4A90D9 !important;
-        box-shadow: 0 0 0 1px #4A90D9 !important;
+        box-shadow: 0 0 0 2px #4A90D9 !important;
     }
-    div[data-baseweb="base-input"]:focus-within {
-        border-color: #4A90D9 !important;
-        box-shadow: 0 0 0 1px #4A90D9 !important;
+    [data-testid="stChatInput"] textarea:focus {
+        outline: none !important;
+        box-shadow: none !important;
     }
     </style>
 """, unsafe_allow_html=True)
