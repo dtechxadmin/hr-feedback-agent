@@ -306,17 +306,10 @@ if is_hr_manager:
         df = pd.DataFrame(table_data)
 
         st.markdown("#### Feedback Records")
-        st.caption("Click a row to view the full feedback record below.")
+        st.caption("Click a row to view the full feedback record on the right.")
 
-        selected_rows = st.dataframe(
-            df,
-            use_container_width=True,
-            hide_index=True,
-            on_select="rerun",
-            selection_mode="single-row",
-        )
+        table_col, card_col = st.columns([3, 2])
 
-        # ── Selected record card ──────────────────────────────────────────────
         with table_col:
             selected_rows = st.dataframe(
                 df,
