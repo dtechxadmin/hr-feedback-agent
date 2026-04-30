@@ -59,13 +59,16 @@ Claude API — 4 tools
 
 ## Simulated SSO users
 
-To demo as a different employee, change `CURRENT_USER_ID` in `auth.py`:
+The app loads with **Alex Rivera** logged in by default. Click **Log Out** to switch accounts.
 
-| ID | Name | Department | Title |
-|----|------|------------|-------|
-| E100001 | Alex Rivera | Engineering | Software Engineer |
-| E100002 | Jordan Lee | Marketing | Marketing Manager |
-| E100003 | Morgan Chen | Operations | Operations Analyst |
+| Employee ID | Name | Department | Experience |
+|-------------|------|------------|------------|
+| E100001 | Alex Rivera | Engineering | Employee feedback view |
+| E100002 | Jordan Lee | Marketing | Employee feedback view |
+| E100003 | Morgan Chen | Operations | Employee feedback view |
+| E100004 | Elena Vasquez | Human Resources | HR Manager dashboard — sees all submitted feedback, sentiment breakdown, and category themes |
+
+To view the HR Manager dashboard, log out and enter **E100004**. Elena Vasquez has HR-level access and lands directly on the feedback dashboard rather than the employee chat interface.
 
 ## Production path
 
