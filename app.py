@@ -289,6 +289,12 @@ if is_hr_manager:
             logout()
             st.rerun()
 
+    st.info(
+        "📊 **HR Manager View:** You are logged in as an HR Manager. "
+        "Use the filters to search feedback by category, sentiment, or date. "
+        "Click any Record ID to view the full submission on the right."
+    )
+
     st.divider()
 
     data = _load()
@@ -397,10 +403,10 @@ with logout_col:
         st.rerun()
 
 st.info(
-    "🔍 **Demo:** This is a proof-of-concept HR feedback agent built with "
-    "the Claude API. You are logged in as a simulated employee via mock SSO. "
-    "Try submitting feedback or asking a question, then switch to the "
-    "HR Manager View tab to see the dashboard."
+    "🔍 **Demo:** This is a prototype for an HR feedback agent built with the Claude API. "
+    "You are logged in as a mock employee to simulate SSO authentication. "
+    "Try submitting feedback or asking a question, then log out and log in as the HR Manager "
+    "(Employee ID: E100004) to see the feedback dashboard."
 )
 
 if st.session_state.show_suggestions:
