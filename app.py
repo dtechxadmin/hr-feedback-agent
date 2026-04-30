@@ -10,37 +10,32 @@ import streamlit as st
 from auth import MOCK_SSO_USERS
 from records import get_feedback_summary, get_feedback_by_category
 
-# ── CSS ───────────────────────────────────────────────────────────────────────
-
-st.markdown("""
-    <style>
-    * :focus {
-        outline: none !important;
-        box-shadow: none !important;
-    }
-    * {
-        --primary-color: #4A90D9 !important;
-    }
-    textarea:focus {
-        border-color: #4A90D9 !important;
-        outline: none !important;
-        box-shadow: 0 0 0 1px #4A90D9 !important;
-    }
-    div[data-baseweb] * {
-        border-color: #4A90D9 !important;
-    }
-    div[data-baseweb]:focus-within * {
-        border-color: #4A90D9 !important;
-        box-shadow: 0 0 0 1px #4A90D9 !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 st.set_page_config(
     page_title="HR Feedback Agent",
     page_icon="💬",
     layout="centered"
 )
+
+# ── CSS ───────────────────────────────────────────────────────────────────────
+
+st.markdown("""
+    <style>
+    [data-testid="stChatInput"] textarea:focus,
+    [data-testid="stChatInput"] textarea:active,
+    [data-testid="stChatInput"] textarea {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    [data-testid="stChatInputContainer"]:focus-within {
+        border-color: #4A90D9 !important;
+        box-shadow: 0 0 0 1px #4A90D9 !important;
+    }
+    div[data-baseweb="base-input"]:focus-within {
+        border-color: #4A90D9 !important;
+        box-shadow: 0 0 0 1px #4A90D9 !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # ── Session state defaults ────────────────────────────────────────────────────
 
