@@ -110,6 +110,9 @@ def render_feedback_card(rec: dict):
 
     st.markdown(f"""
         <div class="feedback-card">
+            <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#888; margin-bottom:8px;">
+                Selected Feedback
+            </div>
             <div style="margin-bottom:10px;">
                 <strong>{rec.get('id', '')}</strong>
                 &nbsp;{sentiment_badge}{anon_badge}
@@ -324,16 +327,11 @@ if is_hr_manager:
                 st.session_state.selected_record = filtered[selected_index]
 
         with card_col:
-            st.markdown(
-                "<div style='margin-top: 0px; padding-top: 0px;'>"
-                "<h4 style='margin-bottom: 8px;'>Selected Feedback</h4>"
-                "</div>",
-                unsafe_allow_html=True
-            )
             if st.session_state.selected_record:
                 render_feedback_card(st.session_state.selected_record)
             else:
-                st.caption("Click a row in the table to view the full record here.")
+                st.markdown("&nbsp;", unsafe_allow_html=True)
+                st.caption("← Click a row to view the full record here.")
 
     st.stop()
 
