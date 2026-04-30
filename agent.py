@@ -16,6 +16,7 @@ Import run_agent() into app.py for Streamlit on Day 2.
 import json
 import os
 import anthropic
+import streamlit as st
 from faq import lookup_faq
 from auth import get_current_user
 from records import submit_feedback, get_feedback_summary, get_feedback_by_category
@@ -222,7 +223,8 @@ def dispatch_tool(tool_name: str, tool_input: dict) -> str:
 # ── Core agent loop ───────────────────────────────────────────────────────────
 
 def run_agent(user_message: str, history: list) -> tuple[str, list]:
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    api_key = st.secrets.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_API_KEY")
+    client = anthropic.Anthropic(api_key=api_key)
     history = history + [{"role": "user", "content": user_message}]
 
     while True:
