@@ -161,6 +161,12 @@ def render_feedback_card(rec: dict):
         </div>
     """, unsafe_allow_html=True)
 
+def _display_category(cat: str) -> str:
+    """Format category for display — handles acronyms like DEI."""
+    overrides = {"dei": "DEI"}
+    return overrides.get(cat.lower(), cat.capitalize())
+
+
 def render_record_table(filtered: list):
     """Render a custom table with clickable Record ID links."""
     # Header row
@@ -200,7 +206,7 @@ def render_record_table(filtered: list):
             ):
                 st.session_state.selected_record = r
                 st.rerun()
-        c2.write(r.get("category", "").capitalize())
+        c2.write(_display_category(r.get("category", "")))
         c3.write(r.get("sentiment", "").capitalize())
         c4.write(display_date)
         c5.write(visibility_label)
