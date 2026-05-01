@@ -326,7 +326,7 @@ if is_hr_manager:
         m4.metric("Positive", by_sent.get("positive", 0))
 
     with chart_col:
-        st.markdown("#### Sentiment Breakdown")
+        st.markdown("#### Sentiment Distribution")
         sentiment_order = ["positive", "constructive", "concern", "urgent"]
         sentiment_labels = {
             "positive": "Positive",
