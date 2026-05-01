@@ -149,7 +149,7 @@ def render_feedback_card(rec: dict):
                 <strong>Name:</strong> {_get_real_name(rec)}
             </div>
             <div style="font-size:14px; color:#444; margin-bottom:4px;">
-                <strong>Category:</strong> {rec.get('category', '').capitalize()}
+                <strong>Category:</strong> {_display_category(rec.get('category', ''))}
             </div>
             <div style="font-size:14px; color:#444; margin-bottom:12px;">
                 <strong>Date:</strong> {formatted_date}
@@ -592,7 +592,7 @@ with main_col:
                             </div>
                         </div>
                         <div style="font-size:14px; color:#444; margin-bottom:4px;">
-                            <strong>Category:</strong> {rec.get('category', '').capitalize()}
+                            <strong>Category:</strong> {_display_category(rec.get('category', ''))}
                         </div>
                         <div style="font-size:14px; color:#444; margin-bottom:12px;">
                             <strong>Date:</strong> {formatted_date}
