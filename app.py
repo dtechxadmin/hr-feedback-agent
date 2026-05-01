@@ -432,7 +432,7 @@ for msg in st.session_state.display_messages:
 
 default_input = st.session_state.pop("prefill", None)
 
-_, chat_col, _ = st.columns([1, 2, 1])
+_, chat_col, _ = st.columns([0.5, 3, 0.5])
 
 if default_input:
     prompt = default_input
