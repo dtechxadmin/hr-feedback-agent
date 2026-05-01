@@ -495,12 +495,10 @@ with main_col:
                 "Use the Chat tab to share feedback with HR."
             )
         else:
-            st.markdown("&nbsp;", unsafe_allow_html=True)
             st.caption(
                 f"{len(my_records)} submission{'s' if len(my_records) != 1 else ''} — "
                 "most recent first"
             )
-            st.markdown("&nbsp;", unsafe_allow_html=True)
 
             for rec in my_records:
                 # Employee-facing card hides the Name field
