@@ -388,75 +388,75 @@ if is_hr_manager:
 # EMPLOYEE VIEW
 # ══════════════════════════════════════════════════════════════════════════════
 
-header_col, logout_col = st.columns([5, 1])
-with header_col:
-    st.header("HR Feedback Agent")
-    st.caption(
-        f"Logged in as **{SSO_USER['full_name']}** · "
-        f"{SSO_USER['title']} · {SSO_USER['department']}"
+_, main_col, _ = st.columns([0.5, 3, 0.5])
+
+with main_col:
+    header_col, logout_col = st.columns([5, 1])
+    with header_col:
+        st.header("HR Feedback Agent")
+        st.caption(
+            f"Logged in as **{SSO_USER['full_name']}** · "
+            f"{SSO_USER['title']} · {SSO_USER['department']}"
+        )
+    with logout_col:
+        st.write("")
+        st.write("")
+        if st.button("Log Out", type="secondary"):
+            logout()
+            st.rerun()
+
+    st.info(
+        "🔍 **Demo:** This is a prototype for an HR feedback agent built with the Claude API. "
+        "You are logged in as a mock employee to simulate SSO authentication. "
+        "Try submitting feedback or asking a question, then log out and log in as the HR Manager "
+        "(Employee ID: E100004) to see the feedback dashboard."
     )
-with logout_col:
-    st.write("")
-    st.write("")
-    if st.button("Log Out", type="secondary"):
-        logout()
-        st.rerun()
 
-st.info(
-    "🔍 **Demo:** This is a prototype for an HR feedback agent built with the Claude API. "
-    "You are logged in as a mock employee to simulate SSO authentication. "
-    "Try submitting feedback or asking a question, then log out and log in as the HR Manager "
-    "(Employee ID: E100004) to see the feedback dashboard."
-)
+    if st.session_state.show_suggestions:
+        with st.expander("Not sure where to start? Try one of these", expanded=True):
+            cols = st.columns(2)
+            suggestions = [
+                "Is my feedback really anonymous?",
+                "What happens after I submit?",
+                "I want to share feedback about my manager",
+                "I have a concern about team culture",
+                "Something happened that felt unfair",
+                "I want to give positive feedback about onboarding",
+            ]
+            for i, s in enumerate(suggestions):
+                if cols[i % 2].button(s, key=f"sug_{i}"):
+                    st.session_state["prefill"] = s
+                    st.session_state.show_suggestions = False
+                    st.rerun()
 
-if st.session_state.show_suggestions:
-    with st.expander("Not sure where to start? Try one of these", expanded=True):
-        cols = st.columns(2)
-        suggestions = [
-            "Is my feedback really anonymous?",
-            "What happens after I submit?",
-            "I want to share feedback about my manager",
-            "I have a concern about team culture",
-            "Something happened that felt unfair",
-            "I want to give positive feedback about onboarding",
-        ]
-        for i, s in enumerate(suggestions):
-            if cols[i % 2].button(s, key=f"sug_{i}"):
-                st.session_state["prefill"] = s
-                st.session_state.show_suggestions = False
-                st.rerun()
+    for msg in st.session_state.display_messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-for msg in st.session_state.display_messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+    default_input = st.session_state.pop("prefill", None)
 
-default_input = st.session_state.pop("prefill", None)
-
-_, chat_col, _ = st.columns([0.5, 3, 0.5])
-
-if default_input:
-    prompt = default_input
-else:
-    with chat_col:
+    if default_input:
+        prompt = default_input
+    else:
         prompt = st.chat_input("Ask a question or share feedback...")
 
-if prompt:
-    st.session_state.show_suggestions = False
+    if prompt:
+        st.session_state.show_suggestions = False
 
-    st.session_state.display_messages.append(
-        {"role": "user", "content": prompt}
-    )
-    with st.chat_message("user"):
-        st.markdown(prompt)
+        st.session_state.display_messages.append(
+            {"role": "user", "content": prompt}
+        )
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-    with st.chat_message("assistant"):
-        with st.spinner(""):
-            reply, st.session_state.history = run_agent(
-                prompt, st.session_state.history
-            )
-        st.markdown(reply)
+        with st.chat_message("assistant"):
+            with st.spinner(""):
+                reply, st.session_state.history = run_agent(
+                    prompt, st.session_state.history
+                )
+            st.markdown(reply)
 
-    st.session_state.display_messages.append(
-        {"role": "assistant", "content": reply}
-    )
-    st.rerun()
+        st.session_state.display_messages.append(
+            {"role": "assistant", "content": reply}
+        )
+        st.rerun()
