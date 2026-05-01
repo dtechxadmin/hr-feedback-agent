@@ -215,34 +215,35 @@ def render_record_table(filtered: list):
 # ── Login screen ──────────────────────────────────────────────────────────────
 
 if not st.session_state.logged_in:
-    st.title("HR Feedback Agent")
-    st.caption("Please enter your Employee ID to continue.")
-    st.divider()
+    _, login_col, _ = st.columns([0.5, 3, 0.5])
 
-    employee_id = st.text_input(
-        "Employee ID",
-        placeholder="e.g. E100001",
-        max_chars=7,
-    )
+    with login_col:
+        st.title("HR Feedback Agent")
+        st.caption("Please enter your Employee ID to continue.")
+        st.divider()
 
-    if st.button("Log In", type="primary"):
-        if employee_id.strip().upper() in MOCK_SSO_USERS:
-            user = MOCK_SSO_USERS[employee_id.strip().upper()]
-            st.session_state.logged_in = True
-            st.session_state.current_user = user
-            st.session_state.history = []
-            st.session_state.display_messages = []
-            st.session_state.show_suggestions = True
-            st.session_state.selected_record = None
-            st.rerun()
-        else:
-            st.error(
-                f"Employee ID '{employee_id}' not found. "
-                "Please check your ID and try again."
-            )
+        employee_id = st.text_input(
+            "Employee ID",
+            placeholder="e.g. E100001",
+            max_chars=7,
+        )
 
-    demo_col, _ = st.columns([2, 1])
-    with demo_col:
+        if st.button("Log In", type="primary"):
+            if employee_id.strip().upper() in MOCK_SSO_USERS:
+                user = MOCK_SSO_USERS[employee_id.strip().upper()]
+                st.session_state.logged_in = True
+                st.session_state.current_user = user
+                st.session_state.history = []
+                st.session_state.display_messages = []
+                st.session_state.show_suggestions = True
+                st.session_state.selected_record = None
+                st.rerun()
+            else:
+                st.error(
+                    f"Employee ID '{employee_id}' not found. "
+                    "Please check your ID and try again."
+                )
+
         with st.expander("Available demo accounts"):
             st.markdown("""
             | Employee ID | Name | Role | Department |
