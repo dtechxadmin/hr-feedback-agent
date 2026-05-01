@@ -127,9 +127,9 @@ def render_feedback_card(rec: dict):
 
     sentiment_badge = f'<span class="badge badge-{sentiment}">{sentiment.capitalize()}</span>'
     anon_badge = (
-        '<span class="badge badge-anon">Anonymous to Manager</span>'
+        '<span class="badge badge-anon">Confidential</span>'
         if is_anon else
-        '<span class="badge badge-named">Named</span>'
+        '<span class="badge badge-named">Visible to Manager</span>'
     )
 
     submitted = rec.get("submitted_at", "")
@@ -407,10 +407,9 @@ with main_col:
             st.rerun()
 
     st.info(
-        "🔍 **Demo:** This is a prototype for an HR feedback agent built with the Claude API. "
-        "You are logged in as a mock employee to simulate SSO authentication. "
-        "Try submitting feedback or asking a question, then log out and log in as the HR Manager "
-        "(Employee ID: E100004) to see the feedback dashboard."
+         "🔍 **Demo:** This is a prototype HR feedback agent built with the Claude API. "
+        "Submit feedback or ask a question — then log out and log in as the HR Manager "
+        "(Employee ID: E100004) to view the feedback dashboard."
     )
 
     # ── Tabs ──────────────────────────────────────────────────────────────────
@@ -422,7 +421,7 @@ with main_col:
             with st.expander("Not sure where to start? Try one of these", expanded=True):
                 cols = st.columns(2)
                 suggestions = [
-                    "Is my feedback really anonymous?",
+                    "Is my feedback confidential?",
                     "What happens after I submit?",
                     "I want to share feedback about my manager",
                     "I have a concern about team culture",
@@ -516,9 +515,9 @@ with main_col:
                     if is_anon else "Named"
                 )
                 anon_badge = (
-                    '<span class="badge badge-anon">Anonymous to Manager</span>'
+                    '<span class="badge badge-anon">Confidential</span>'
                     if is_anon else
-                    '<span class="badge badge-named">Named</span>'
+                    '<span class="badge badge-named">Visible to Manager</span>'
                 )
 
                 submitted = rec.get("submitted_at", "")

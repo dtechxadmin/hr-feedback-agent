@@ -8,14 +8,18 @@ trust questions more than PTO accrual math.
 
 FAQ_ENTRIES = [
     {
-        "keywords": ["anonymous", "anonymity", "see my name", "who can see", "confidential"],
-        "question": "Is my feedback really anonymous?",
+        "keywords": ["anonymous", "anonymity", "confidential", "see my name", "who can see"],
+        "question": "Is my feedback confidential?",
         "answer": (
-            "Yes. When you submit anonymously, your name is never written to the record — "
-            "not even in a hidden field. The HR team sees the feedback text, category, and "
-            "timestamp, but nothing that identifies you. The only exception: if feedback "
-            "describes an urgent safety concern, HR may follow up through general channels "
-            "without targeting any individual."
+            "Your feedback can be submitted in one of two ways, and you choose which at the time "
+            "of submission:\n\n"
+            "Confidential — HR will have your name on record for accountability, but your manager "
+            "will not see it. This is the default for sensitive topics like manager feedback, "
+            "culture, and workload.\n\n"
+            "Shared — Both HR and your manager will see your name on the feedback. This is a good "
+            "option when you want your manager to be part of the conversation.\n\n"
+            "Either way, HR always retains your identity. This is to ensure feedback is used "
+            "responsibly and cannot be submitted in bad faith."
         ),
     },
     {
@@ -46,7 +50,7 @@ FAQ_ENTRIES = [
         "question": "Will I face consequences for giving negative feedback?",
         "answer": (
             "Retaliation for submitting feedback — positive or negative — is a policy violation "
-            "and grounds for disciplinary action. Anonymous submissions are designed specifically "
+            "and grounds for disciplinary action. Confidential submissions are designed specifically "
             "to make this a non-issue. If you ever feel you've experienced retaliation after "
             "submitting feedback, report it directly to the HR Manager or through "
             "your organization's ethics reporting channel."
