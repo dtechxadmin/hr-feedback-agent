@@ -413,51 +413,158 @@ with main_col:
         "(Employee ID: E100004) to see the feedback dashboard."
     )
 
-    if st.session_state.show_suggestions:
-        with st.expander("Not sure where to start? Try one of these", expanded=True):
-            cols = st.columns(2)
-            suggestions = [
-                "Is my feedback really anonymous?",
-                "What happens after I submit?",
-                "I want to share feedback about my manager",
-                "I have a concern about team culture",
-                "Something happened that felt unfair",
-                "I want to give positive feedback about onboarding",
-            ]
-            for i, s in enumerate(suggestions):
-                if cols[i % 2].button(s, key=f"sug_{i}"):
-                    st.session_state["prefill"] = s
-                    st.session_state.show_suggestions = False
-                    st.rerun()
+    # ── Tabs ──────────────────────────────────────────────────────────────────
+    chat_tab, my_feedback_tab = st.tabs(["Chat", "My Feedback"])
 
-    for msg in st.session_state.display_messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+    # ── Chat tab ──────────────────────────────────────────────────────────────
+    with chat_tab:
+        if st.session_state.show_suggestions:
+            with st.expander("Not sure where to start? Try one of these", expanded=True):
+                cols = st.columns(2)
+                suggestions = [
+                    "Is my feedback really anonymous?",
+                    "What happens after I submit?",
+                    "I want to share feedback about my manager",
+                    "I have a concern about team culture",
+                    "Something happened that felt unfair",
+                    "I want to give positive feedback about onboarding",
+                ]
+                for i, s in enumerate(suggestions):
+                    if cols[i % 2].button(s, key=f"sug_{i}"):
+                        st.session_state["prefill"] = s
+                        st.session_state.show_suggestions = False
+                        st.rerun()
 
-    default_input = st.session_state.pop("prefill", None)
+        for msg in st.session_state.display_messages:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
 
-    if default_input:
-        prompt = default_input
-    else:
-        prompt = st.chat_input("Ask a question or share feedback...")
+        default_input = st.session_state.pop("prefill", None)
 
-    if prompt:
-        st.session_state.show_suggestions = False
+        if default_input:
+            prompt = default_input
+        else:
+            prompt = st.chat_input("Ask a question or share feedback...")
 
-        st.session_state.display_messages.append(
-            {"role": "user", "content": prompt}
+        if prompt:
+            st.session_state.show_suggestions = False
+
+            st.session_state.display_messages.append(
+                {"role": "user", "content": prompt}
+            )
+            with st.chat_message("user"):
+                st.markdown(prompt)
+
+            with st.chat_message("assistant"):
+                with st.spinner(""):
+                    reply, st.session_state.history = run_agent(
+                        prompt, st.session_state.history
+                    )
+                st.markdown(reply)
+
+            st.session_state.display_messages.append(
+                {"role": "assistant", "content": reply}
+            )
+            st.rerun()
+
+    # ── My Feedback tab ───────────────────────────────────────────────────────
+    with my_feedback_tab:
+        data = _load()
+        all_records = data.get("feedback", [])
+        employee_id = SSO_USER["employee_id"]
+
+        # Filter records belonging to the logged-in employee
+        my_records = [
+            r for r in all_records
+            if r.get("employee_id") == employee_id
+        ]
+
+        # Sort descending by date — most recent first
+        my_records = sorted(
+            my_records,
+            key=lambda r: datetime.strptime(
+                r.get("submitted_at", "2000-01-01 00:00"), "%Y-%m-%d %H:%M"
+            ),
+            reverse=True,
         )
-        with st.chat_message("user"):
-            st.markdown(prompt)
 
-        with st.chat_message("assistant"):
-            with st.spinner(""):
-                reply, st.session_state.history = run_agent(
-                    prompt, st.session_state.history
+        if not my_records:
+            st.markdown("&nbsp;", unsafe_allow_html=True)
+            st.info(
+                "You haven't submitted any feedback yet. "
+                "Use the Chat tab to share feedback with HR."
+            )
+        else:
+            st.markdown("&nbsp;", unsafe_allow_html=True)
+            st.caption(
+                f"{len(my_records)} submission{'s' if len(my_records) != 1 else ''} — "
+                "most recent first"
+            )
+            st.markdown("&nbsp;", unsafe_allow_html=True)
+
+            for rec in my_records:
+                # Employee-facing card hides the Name field
+                # since the employee already knows it's theirs
+                sentiment = rec.get("sentiment", "general")
+                visibility = rec.get("visibility", "anonymous_to_manager")
+                is_anon = visibility == "anonymous_to_manager"
+
+                sentiment_badge = (
+                    f'<span class="badge badge-{sentiment}">'
+                    f'{sentiment.capitalize()}</span>'
                 )
-            st.markdown(reply)
+                visibility_label = (
+                    "Anonymous to Manager"
+                    if is_anon else "Named"
+                )
+                anon_badge = (
+                    '<span class="badge badge-anon">Anonymous to Manager</span>'
+                    if is_anon else
+                    '<span class="badge badge-named">Named</span>'
+                )
 
-        st.session_state.display_messages.append(
-            {"role": "assistant", "content": reply}
-        )
-        st.rerun()
+                submitted = rec.get("submitted_at", "")
+                try:
+                    dt = datetime.strptime(submitted, "%Y-%m-%d %H:%M")
+                    formatted_date = dt.strftime("%m/%d/%Y %H:%M")
+                except Exception:
+                    formatted_date = submitted
+
+                status = rec.get("status", "received")
+                status_colors = {
+                    "received": "#888",
+                    "reviewed": "#1A5276",
+                    "actioned": "#1E8449",
+                    "closed": "#444",
+                }
+                status_color = status_colors.get(status, "#888")
+
+                st.markdown(f"""
+                    <div class="feedback-card">
+                        <div style="margin-bottom:10px; display:flex;
+                             justify-content:space-between; align-items:center;">
+                            <div>
+                                <strong>{rec.get('id', '')}</strong>
+                                &nbsp;{sentiment_badge}{anon_badge}
+                            </div>
+                            <div style="font-size:12px; color:{status_color};
+                                 font-weight:600; text-transform:uppercase;
+                                 letter-spacing:0.5px;">
+                                {status.capitalize()}
+                            </div>
+                        </div>
+                        <div style="font-size:14px; color:#444; margin-bottom:4px;">
+                            <strong>Category:</strong> {rec.get('category', '').capitalize()}
+                        </div>
+                        <div style="font-size:14px; color:#444; margin-bottom:12px;">
+                            <strong>Date:</strong> {formatted_date}
+                        </div>
+                        <hr style="border:none; border-top:1px solid #e0e0e0;
+                             margin-bottom:12px;">
+                        <div style="font-size:15px; color:#222; line-height:1.6;">
+                            {rec.get('feedback', '')}
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("&nbsp;", unsafe_allow_html=True)
