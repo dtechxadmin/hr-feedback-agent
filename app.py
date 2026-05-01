@@ -186,9 +186,9 @@ def render_record_table(filtered: list):
             display_date = submitted
 
         visibility_label = (
-            "Anonymous to Manager"
+            "Confidential"
             if r.get("visibility") == "anonymous_to_manager"
-            else "Named"
+            else "Shared"
         )
 
         c1, c2, c3, c4, c5 = st.columns([1.5, 1.2, 1.2, 1, 1.5])
@@ -307,18 +307,53 @@ if is_hr_manager:
         st.info("No feedback submitted yet.")
         st.stop()
 
-    # ── Metrics ───────────────────────────────────────────────────────────────
+    # ── Metrics + chart ───────────────────────────────────────────────────────
     total = len(all_records)
     by_sent = {}
     for r in all_records:
         s = r.get("sentiment", "general")
         by_sent[s] = by_sent.get(s, 0) + 1
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total submissions", total)
-    col2.metric("Urgent", by_sent.get("urgent", 0))
-    col3.metric("Concerns", by_sent.get("concern", 0))
-    col4.metric("Positive", by_sent.get("positive", 0))
+    metrics_col, chart_col = st.columns([2, 3])
+
+    with metrics_col:
+        st.markdown("#### Overview")
+        m1, m2 = st.columns(2)
+        m1.metric("Total submissions", total)
+        m2.metric("Urgent", by_sent.get("urgent", 0))
+        m3, m4 = st.columns(2)
+        m3.metric("Concerns", by_sent.get("concern", 0))
+        m4.metric("Positive", by_sent.get("positive", 0))
+
+    with chart_col:
+        st.markdown("#### Sentiment Breakdown")
+        sentiment_order = ["positive", "constructive", "concern", "urgent"]
+        sentiment_labels = {
+            "positive": "Positive",
+            "constructive": "Constructive",
+            "concern": "Concern",
+            "urgent": "Urgent",
+        }
+        sentiment_colors = {
+            "Positive": "#1E8449",
+            "Constructive": "#1A5276",
+            "Concern": "#C0392B",
+            "Urgent": "#BA4A00",
+        }
+
+        chart_data = {
+            "Sentiment": [sentiment_labels[s] for s in sentiment_order if by_sent.get(s, 0) > 0],
+            "Count": [by_sent[s] for s in sentiment_order if by_sent.get(s, 0) > 0],
+        }
+
+        df_chart = pd.DataFrame(chart_data)
+
+        st.bar_chart(
+            df_chart.set_index("Sentiment"),
+            horizontal=True,
+            color="#4A90D9",
+            height=180,
+        )
 
     st.divider()
 
