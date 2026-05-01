@@ -129,7 +129,7 @@ def render_feedback_card(rec: dict):
     anon_badge = (
         '<span class="badge badge-anon">Confidential</span>'
         if is_anon else
-        '<span class="badge badge-named">Visible to Manager</span>'
+        '<span class="badge badge-named">Shared</span>'
     )
 
     submitted = rec.get("submitted_at", "")
@@ -552,7 +552,7 @@ with main_col:
                 anon_badge = (
                     '<span class="badge badge-anon">Confidential</span>'
                     if is_anon else
-                    '<span class="badge badge-named">Visible to Manager</span>'
+                    '<span class="badge badge-named">Shared</span>'
                 )
 
                 submitted = rec.get("submitted_at", "")
