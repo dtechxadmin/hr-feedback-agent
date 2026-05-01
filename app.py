@@ -408,7 +408,7 @@ with main_col:
 
     st.info(
          "🔍 **Demo:** This is a prototype HR feedback agent built with the Claude API. "
-        "Submit feedback or ask a question — then log out and log in as the HR Manager "
+        "Submit feedback then log out and log in as the HR Manager "
         "(Employee ID: E100004) to view the feedback dashboard."
     )
 
