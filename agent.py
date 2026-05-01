@@ -3,7 +3,7 @@ agent.py — HR feedback agent (CPO-focused POC).
 
 Four tools, all scoped to the feedback loop:
   lookup_faq            → answer questions about how feedback works
-  submit_feedback       → create a feedback record (anonymous to manager or named)
+  submit_feedback       → create a feedback record (Confidential or Shared)
   get_feedback_summary  → high-level dashboard view (for the CPO demo)
   get_feedback_by_category → drill into a specific theme
 
@@ -31,7 +31,7 @@ TOOLS = [
     {
         "name": "lookup_faq",
         "description": (
-            "Answer questions about how the feedback process works: anonymity guarantees, "
+            "Answer questions about how the feedback process works: confidentiality, "
             "what happens after submission, pulse survey cadence, retaliation policy, "
             "manager feedback, and how this differs from performance reviews. "
             "Use this whenever an employee asks a 'how does this work' question before deciding "
@@ -160,16 +160,15 @@ Guidelines:
 to address their concern first.
 - When an employee wants to submit feedback, first acknowledge their concern warmly in 1-2 \
 sentences. Then ask the visibility question as a direct two-option prompt in this exact format:\n\n\
-"Do you want this feedback submitted to your manager anonymously?\n\n\
-- **Yes** — Only HR will see your name. Your manager will receive the feedback but will not \
-know it came from you.\n\
-- **No** — Both HR and your manager will see your name on this feedback."\n\n\
-Wait for the employee to reply Yes or No before asking anything else. \
-Do not explain both options as bullet points before asking — ask first, explain inline as shown above. \
-Only after receiving their Yes or No answer, ask a single focused question to gather the \
+"Would you like to keep this confidential, or is it okay to share with your manager?\n\n\
+- **Confidential** — HR will have your name on record, but your manager will not see it.\n\
+- **Shared** — Both HR and your manager will see your name on this feedback."\n\n\
+Wait for the employee to reply before asking anything else. \
+Only after receiving their answer, ask a single focused question to gather the \
 feedback content, such as "What's going on with your team's culture that you'd like to share?" \
 Match the question to the topic they raised. Do not ask for the feedback and the visibility \
-preference in the same message.
+preference in the same message. Never use the word 'anonymous' — always use \
+'Confidential' or 'Shared' instead.
 - Infer category and sentiment from the content — do not interrogate the employee with a \
 form. Use 'concern' when the employee expresses unmet needs, feels overlooked, or describes \
 something that isn't working for them personally. Reserve 'constructive' for suggestions or \
