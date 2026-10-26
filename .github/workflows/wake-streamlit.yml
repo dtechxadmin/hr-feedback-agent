@@ -1,0 +1,56 @@
+name: Wake Streamlit app
+
+on:
+  schedule:
+    # Mondays and Thursdays at 15:17 UTC (~9:17am Denver in summer, 8:17am in winter)
+    - cron: "17 15 * * 1,4"
+  workflow_dispatch: {}   # run it by hand from the Actions tab
+
+permissions:
+  contents: read
+  actions: write   # lets the last step re-enable this workflow (no commits needed)
+
+concurrency:
+  group: wake-streamlit
+  cancel-in-progress: false
+
+jobs:
+  wake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_URL: https://hr-feedback-agent.streamlit.app/
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright + Chromium
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Wake the app
+        run: python .github/scripts/wake_app.py
+
+      - name: Upload screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-screenshot
+          path: result.png
+          retention-days: 14
+          if-no-files-found: ignore
+
+      # GitHub disables scheduled workflows after 60 days with no repo activity.
+      # Re-enabling via the API resets that timer without committing to the repo
+      # (a commit would redeploy the Streamlit app every run).
+      - name: Keep the schedule alive
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/wake-streamlit.yml/enable"
