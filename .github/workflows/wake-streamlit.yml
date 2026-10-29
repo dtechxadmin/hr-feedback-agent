@@ -2,8 +2,9 @@ name: Wake Streamlit app
 
 on:
   schedule:
-    # Mondays and Thursdays at 15:17 UTC (~9:17am Denver in summer, 8:17am in winter)
-    - cron: "17 15 * * 1,4"
+    # Every 4 hours. Streamlit now sleeps apps after 12h without traffic, and
+    # GitHub often starts scheduled runs late (sometimes by hours), so 4h leaves margin.
+    - cron: "17 */4 * * *"
   workflow_dispatch: {}   # run it by hand from the Actions tab
 
 permissions:
@@ -17,7 +18,7 @@ concurrency:
 jobs:
   wake:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       APP_URL: https://hr-feedback-agent.streamlit.app/
     steps:
